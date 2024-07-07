@@ -2,15 +2,15 @@ const supabase = require("../../configs/supabase");
 
 const AuthController = {
   signupUser: async (req, res) => {
-    const { name, email, password } = req.body;
+    const { firstname, lastname, email, password } = req.body;
     try {
       // Sign up the user with Supabase Auth
-      let { data, error } = await supabase.auth.signUp({
+      const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
 
       // Get the user details from the signUp response
       const user = data.user;
@@ -19,11 +19,11 @@ const AuthController = {
       }
 
       // Insert the user into the 'users' table
-      const { error: dbError } = await supabase
+      const { error: usersError } = await supabase
         .from("users")
-        .insert([{ id: user.id, email: user.email, name: name }]);
+        .insert([{ id: user.id, firstname: firstname, lastname: lastname }]);
 
-      if (dbError) throw dbError;
+      if (usersError) throw usersError;
 
       res.status(201).json({ data });
     } catch (error) {
