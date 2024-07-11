@@ -20,33 +20,28 @@ const UserController = {
     }
   },
 
-  updateUserById: async (req, res) => {
+  updateUserWalletById: async (req, res) => {
     const { userId } = req.params;
-    const { newName, newEmail } = req.body;
-
+    const { wallet_initial_value, wallet_current_value } = req.body;
+  
     try {
-      // Update user's email in the authentication table
-      const { error: authUpdateError } = await supabase.auth.updateUser({
-        id: userId,
-        email: newEmail,
-      });
-
-      if (authUpdateError) throw authUpdateError;
-
-      // Update user's name and email in the users table
       const { error: dataUpdateError } = await supabase
         .from("users")
-        .update({ name: newName, email: newEmail })
+        .update({
+          wallet_initial_value,
+          wallet_current_value
+        })
         .eq("id", userId);
-
+  
       if (dataUpdateError) throw dataUpdateError;
-
-      res.status(200).json({ message: "User updated successfully" });
+  
+      res.status(200).json({ message: "User wallet updated successfully" });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal Server Error" });
     }
   },
+  
 };
 
 module.exports = UserController;
