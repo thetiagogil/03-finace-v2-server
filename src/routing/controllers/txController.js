@@ -19,19 +19,19 @@ const TxController = {
     }
   },
 
-  getProductById: async (req, res) => {
-    const { productId } = req.params;
+  getTxByStatus: async (req, res) => {
+    const { user_id, status } = req.query;
     try {
       const { data, error } = await supabase
-        .from("products")
+        .from("tx")
         .select("*")
-        .eq("id", productId)
-        .single();
-
+        .eq("user_id", user_id)
+        .eq("status", status);
+  
       if (error) throw error;
-
+  
       if (!data) {
-        res.status(404).json({ message: "Product not found" });
+        res.status(404).json({ message: "No transactions found" });
       } else {
         res.status(200).json(data);
       }
@@ -40,6 +40,7 @@ const TxController = {
       res.status(500).json({ error: "Internal Server Error" });
     }
   },
+  
 
   updateProductById: async (req, res) => {
     const { productId } = req.params;
