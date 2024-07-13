@@ -83,13 +83,14 @@ const TxController = {
     }
   },
 
-  getUserTxYears: async (req, res) => {
-    const { userId } = req.params;
+  getUserTxYearsByStatus: async (req, res) => {
+    const { userId, status } = req.params;
     try {
       const { data, error } = await supabase
         .from("tx")
-        .select("date")
-        .eq("user_id", userId);
+        .select("date, type, value")
+        .eq("user_id", userId)
+        .eq("status", status);
 
       if (error) {
         throw error;
@@ -97,11 +98,28 @@ const TxController = {
 
       if (!data) {
         res.status(404).json({ message: "No transactions found" });
-      } else {
-        const years = data.map(tx => new Date(tx.date).getFullYear());
-        const uniqueYears = Array.from(new Set(years)).sort();
-        res.status(200).json(uniqueYears);
+        return;
       }
+
+      const yearData = {};
+
+      data.forEach(tx => {
+        const year = new Date(tx.date).getFullYear();
+        if (!yearData[year]) {
+          yearData[year] = { year, totalIncome: 0, totalExpense: 0, trackedCount: 0 };
+        }
+        
+        if (tx.type === 'income') {
+          yearData[year].totalIncome += tx.value;
+        } else if (tx.type === 'expense') {
+          yearData[year].totalExpense += tx.value;
+        }
+        yearData[year].trackedCount += 1;
+      });
+
+      const result = Object.values(yearData).sort((a, b) => a.year - b.year);
+
+      res.status(200).json(result);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal Server Error" });
