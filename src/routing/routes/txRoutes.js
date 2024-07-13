@@ -4,8 +4,9 @@ const TxController = require("../controllers/txController");
 
 router.post("/", TxController.createTx);
 router.get("/years/:userId/:status", TxController.getUserTxYearsByStatus);
+router.get("/years/:userId/:status/:year", TxController.getTxMonthlyCategorySummary);
 router.get("/:userId/:status", TxController.getTxByStatus);
-router.get("/:txId", TxController.updateTxById);
+router.put("/:txId", TxController.updateTxById);
 router.delete("/:txId", TxController.deleteTxById);
 
 module.exports = router;
