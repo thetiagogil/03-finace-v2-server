@@ -1,28 +1,6 @@
 const supabase = require("../../configs/supabase");
 
 const TxController = {
-  getTxByStatus: async (req, res) => {
-    const { userId, status } = req.params;
-    try {
-      const { data, error } = await supabase
-        .from("tx")
-        .select("*")
-        .eq("user_id", userId)
-        .eq("status", status);
-
-      if (error) throw error;
-
-      if (!data) {
-        res.status(404).json({ message: "No transactions found" });
-      } else {
-        res.status(200).json(data);
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  },
-
   getUserTxYearsByStatus: async (req, res) => {
     const { userId, status } = req.params;
     try {
