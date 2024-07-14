@@ -1,7 +1,6 @@
 const supabase = require("../../configs/supabase");
 
 const UserController = {
-
   getUserById: async (req, res) => {
     const { userId } = req.params;
     try {

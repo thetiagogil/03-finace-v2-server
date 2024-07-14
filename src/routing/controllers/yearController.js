@@ -1,7 +1,7 @@
 const supabase = require("../../configs/supabase");
 
 const TxController = {
-  getUserTxYearsByStatus: async (req, res) => {
+  getAllYearsByStatus: async (req, res) => {
     const { userId, status } = req.params;
     try {
       const { data, error } = await supabase
@@ -49,7 +49,49 @@ const TxController = {
     }
   },
 
-  getTxMonthCategorySummary: async (req, res) => {
+  getYearByStatus: async (req, res) => {
+    const { userId, status, year } = req.params;
+    try {
+      const { data, error } = await supabase
+        .from("tx")
+        .select("date, type, value")
+        .eq("user_id", userId)
+        .eq("status", status)
+        .gte("date", `${year}-01-01`)
+        .lte("date", `${year}-12-31`);
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        return res.status(404).json({ message: "No transactions found" });
+      }
+
+      const yearData = {
+        year: parseInt(year, 10),
+        totalIncome: 0,
+        totalExpense: 0,
+        trackedCount: 0,
+      };
+
+      data.forEach((tx) => {
+        if (tx.type === "income") {
+          yearData.totalIncome += tx.value;
+        } else if (tx.type === "expense") {
+          yearData.totalExpense += tx.value;
+        }
+        yearData.trackedCount += 1;
+      });
+
+      res.status(200).json(yearData);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+
+  getYearCategorySummaryByStatus: async (req, res) => {
     const { userId, status, year } = req.params;
     try {
       const { data, error } = await supabase
@@ -123,7 +165,7 @@ const TxController = {
     }
   },
 
-  getYearTopMonths: async (req, res) => {
+  getYearTopMonthsByStatus: async (req, res) => {
     const { userId, year, status } = req.params;
     try {
       const { data, error } = await supabase
@@ -139,12 +181,10 @@ const TxController = {
       }
 
       if (!data || data.length === 0) {
-        res
-          .status(404)
-          .json({
-            message:
-              "No transactions found for the specified user, year, and status",
-          });
+        res.status(404).json({
+          message:
+            "No transactions found for the specified user, year, and status",
+        });
         return;
       }
 
@@ -190,7 +230,7 @@ const TxController = {
     }
   },
 
-  getYearTopCategories: async (req, res) => {
+  getYearTopCategoriesByStatus: async (req, res) => {
     const { userId, year, status } = req.params;
     try {
       const { data, error } = await supabase
@@ -206,12 +246,10 @@ const TxController = {
       }
 
       if (!data || data.length === 0) {
-        res
-          .status(404)
-          .json({
-            message:
-              "No transactions found for the specified user, year, and status",
-          });
+        res.status(404).json({
+          message:
+            "No transactions found for the specified user, year, and status",
+        });
         return;
       }
 
@@ -254,7 +292,7 @@ const TxController = {
     }
   },
 
-  getYearMonthTotals: async (req, res) => {
+  getYearMonthTotalsByStatus: async (req, res) => {
     const { userId, status, year } = req.params;
 
     try {
