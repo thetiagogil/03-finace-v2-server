@@ -1,13 +1,12 @@
 const supabase = require("../../../configs/supabase");
 
 const getYearCategorySummary = async (req, res) => {
-  const { userId, year, type, month } = req.params;
+  const { userId, year, month } = req.params;
   try {
     let query = supabase
       .from("tx")
-      .select("date, category, value, status")
-      .eq("user_id", userId)
-      .eq("type", type);
+      .select("date, category, value, type, status")
+      .eq("user_id", userId);
 
     if (month) {
       const monthStart = `${year}-${month}-01`;
@@ -33,19 +32,23 @@ const getYearCategorySummary = async (req, res) => {
       return res.status(404).json({ message: "No transactions found" });
     }
 
-    const categorySummary = {};
+    const categorySummary = {
+      incomes: {},
+      expenses: {}
+    };
 
     data.forEach((tx) => {
-      const { category, value, status } = tx;
+      const { category, value, type, status } = tx;
+      const summaryType = type === "income" ? "incomes" : "expenses";
 
-      if (!categorySummary[category]) {
-        categorySummary[category] = { tracked: 0, planned: 0 };
+      if (!categorySummary[summaryType][category]) {
+        categorySummary[summaryType][category] = { tracked: 0, planned: 0 };
       }
 
       if (status === "tracked") {
-        categorySummary[category].tracked += value;
+        categorySummary[summaryType][category].tracked += value;
       } else if (status === "planned") {
-        categorySummary[category].planned += value;
+        categorySummary[summaryType][category].planned += value;
       }
     });
 

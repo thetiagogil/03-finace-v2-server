@@ -1,6 +1,6 @@
 const supabase = require("../../../configs/supabase");
 
-const getYear = async (req, res) => {
+const getYearInfo = async (req, res) => {
   const { userId, status, year } = req.params;
   try {
     const { data, error } = await supabase
@@ -42,4 +42,4 @@ const getYear = async (req, res) => {
   }
 };
 
-module.exports = getYear;
+module.exports = getYearInfo;
