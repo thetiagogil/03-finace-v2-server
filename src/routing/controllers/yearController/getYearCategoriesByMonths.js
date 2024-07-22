@@ -1,4 +1,5 @@
 const supabase = require("../../../configs/supabase");
+const shortMonths = require("../../../utils/months-array");
 
 const getYearCategoriesByMonths = async (req, res) => {
   const { userId, status, year } = req.params;
@@ -40,23 +41,9 @@ const getYearCategoriesByMonths = async (req, res) => {
       monthlySummary[summaryType][month][category] += value;
     });
 
-    const months = [
-      "jan",
-      "feb",
-      "mar",
-      "apr",
-      "may",
-      "jun",
-      "jul",
-      "aug",
-      "sep",
-      "oct",
-      "nov",
-      "dec",
-    ];
     const orderedMonthlySummary = { incomes: {}, expenses: {} };
 
-    months.forEach((month) => {
+    shortMonths.forEach((month) => {
       if (monthlySummary.incomes[month]) {
         orderedMonthlySummary.incomes[month] = monthlySummary.incomes[month];
       }

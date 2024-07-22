@@ -15,8 +15,8 @@ const getYearMonths = async (req, res) => {
     }
 
     if (!data) {
-        return res.status(404).json({ message: "No transactions found" });
-      }
+      return res.status(404).json({ message: "No transactions found" });
+    }
 
     const monthsWithData = {};
 
@@ -25,10 +25,14 @@ const getYearMonths = async (req, res) => {
       monthsWithData[month] = true;
     });
 
-    const monthsWithDataNames = Object.keys(monthsWithData).map(monthIndex => {
-      const fullMonthName = new Date(year, parseInt(monthIndex), 1).toLocaleString('en-US', { month: 'short' }).toLowerCase();
-      return fullMonthName;
-    });
+    const monthsWithDataNames = Object.keys(monthsWithData).map(
+      (monthIndex) => {
+        const fullMonthName = new Date(year, parseInt(monthIndex), 1)
+          .toLocaleString("en-US", { month: "short" })
+          .toLowerCase();
+        return fullMonthName;
+      }
+    );
 
     res.status(200).json(monthsWithDataNames);
   } catch (error) {

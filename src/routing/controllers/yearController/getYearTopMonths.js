@@ -42,23 +42,28 @@ const getYearTopMonths = async (req, res) => {
       }
     });
 
-    const sortedIncomes = Object.entries(incomesByMonth)
-      .sort(([, a], [, b]) => b - a)
-      .reduce((acc, [month, value]) => {
+    const getTopMonths = (monthData) => {
+      const sortedMonths = Object.entries(monthData).sort(([, a], [, b]) => b - a);
+
+      const topMonths = sortedMonths.slice(0, 4);
+      const otherMonths = sortedMonths.slice(4);
+
+      const topMonthData = topMonths.reduce((acc, [month, value]) => {
         acc[month] = value;
         return acc;
       }, {});
 
-    const sortedExpenses = Object.entries(expensesByMonth)
-      .sort(([, a], [, b]) => b - a)
-      .reduce((acc, [month, value]) => {
-        acc[month] = value;
-        return acc;
-      }, {});
+      const otherValue = otherMonths.reduce((sum, [, value]) => sum + value, 0);
+      if (otherValue > 0) {
+        topMonthData["others"] = otherValue;
+      }
+
+      return topMonthData;
+    };
 
     const result = {
-      incomes: sortedIncomes,
-      expenses: sortedExpenses,
+      incomes: getTopMonths(incomesByMonth),
+      expenses: getTopMonths(expensesByMonth),
     };
 
     res.status(200).json(result);
