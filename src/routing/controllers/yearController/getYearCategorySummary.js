@@ -1,4 +1,5 @@
 const supabase = require("../../../configs/supabase");
+const getMonthNumber = require("../../../utils/getMonthNumber");
 
 const getYearCategorySummary = async (req, res) => {
   const { userId, year, month } = req.params;
@@ -9,15 +10,13 @@ const getYearCategorySummary = async (req, res) => {
       .eq("user_id", userId);
 
     if (month) {
-      const monthStart = `${year}-${month}-01`;
-      const monthEnd = new Date(
-        year,
-        new Date(Date.parse(`${month} 1, ${year}`)).getMonth() + 1,
-        0
-      )
-        .toISOString()
-        .slice(0, 10);
-      query = query.gte("date", monthStart).lte("date", monthEnd);
+      const monthNumber = getMonthNumber(month);
+      const monthStart = `${year}-${monthNumber}-01`;
+      const nextMonthStart = new Date(year, parseInt(monthNumber, 10), 1);
+      const monthEnd = new Date(nextMonthStart.getTime() - 1);
+      const monthEndISO = monthEnd.toISOString().slice(0, 10);
+
+      query = query.gte("date", monthStart).lte("date", monthEndISO);
     } else {
       query = query.gte("date", `${year}-01-01`).lte("date", `${year}-12-31`);
     }
@@ -34,7 +33,7 @@ const getYearCategorySummary = async (req, res) => {
 
     const categorySummary = {
       incomes: {},
-      expenses: {}
+      expenses: {},
     };
 
     data.forEach((tx) => {

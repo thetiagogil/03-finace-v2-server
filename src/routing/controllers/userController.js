@@ -12,7 +12,7 @@ const UserController = {
 
       if (error) throw error;
 
-      res.status(200).json({ user: data });
+      res.status(200).json({ data });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal Server Error" });
@@ -22,25 +22,24 @@ const UserController = {
   updateUserWalletById: async (req, res) => {
     const { userId } = req.params;
     const { wallet_initial_value, wallet_current_value } = req.body;
-  
+
     try {
       const { error: dataUpdateError } = await supabase
         .from("users")
         .update({
           wallet_initial_value,
-          wallet_current_value
+          wallet_current_value,
         })
         .eq("id", userId);
-  
+
       if (dataUpdateError) throw dataUpdateError;
-  
+
       res.status(200).json({ message: "User wallet updated successfully" });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal Server Error" });
     }
   },
-  
 };
 
 module.exports = UserController;
