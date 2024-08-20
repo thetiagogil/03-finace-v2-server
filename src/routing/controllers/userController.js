@@ -40,6 +40,23 @@ const UserController = {
       res.status(500).json({ error: "Internal Server Error" });
     }
   },
+
+  deleteUserById: async (req, res) => {
+    const { userId } = req.params;
+    try {
+      const { error: deleteError } = await supabase
+        .from("users")
+        .delete()
+        .eq("id", userId);
+
+      if (deleteError) throw deleteError;
+
+      res.status(200).json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
 };
 
 module.exports = UserController;
