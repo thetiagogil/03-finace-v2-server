@@ -21,14 +21,16 @@ const UserController = {
 
   updateUserWalletById: async (req, res) => {
     const { userId } = req.params;
-    const { wallet_initial_value, wallet_current_value } = req.body;
+    const { wallet_initial_balance, wallet_current_balance, wallet_currency } =
+      req.body;
 
     try {
       const { error: dataUpdateError } = await supabase
         .from("users")
         .update({
-          wallet_initial_value,
-          wallet_current_value,
+          wallet_initial_balance,
+          wallet_current_balance,
+          wallet_currency,
         })
         .eq("id", userId);
 
