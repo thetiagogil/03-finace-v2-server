@@ -1,14 +1,38 @@
 const supabase = require("../../configs/supabase");
 
 const TxController = {
-  createTx: async (req, res) => {
-    const { user_id, type, status, category, date, value, description} = req.body;
-    const txData = { user_id, type, status, category, date, value, description };
+  hasTx: async (req, res) => {
+    const { userId } = req.params;
     try {
       const { data, error } = await supabase
         .from("tx")
-        .insert(txData)
-        .select();
+        .select("id")
+        .eq("user_id", userId)
+        .limit(1);
+
+      if (error) throw error;
+      const hasData = data.length > 0;
+      res.status(200).json(hasData);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+
+  createTx: async (req, res) => {
+    const { user_id, type, status, category, date, value, description } =
+      req.body;
+    const txData = {
+      user_id,
+      type,
+      status,
+      category,
+      date,
+      value,
+      description,
+    };
+    try {
+      const { data, error } = await supabase.from("tx").insert(txData).select();
 
       if (error) throw error;
 
@@ -40,7 +64,7 @@ const TxController = {
       res.status(500).json({ error: "Internal Server Error" });
     }
   },
-  
+
   updateTxById: async (req, res) => {
     const { txId } = req.params;
     const { type, status, category, date, value, description } = req.body;
@@ -68,10 +92,7 @@ const TxController = {
   deleteTxById: async (req, res) => {
     const { txId } = req.params;
     try {
-      const { error } = await supabase
-        .from("tx")
-        .delete()
-        .eq("id", txId);
+      const { error } = await supabase.from("tx").delete().eq("id", txId);
 
       if (error) throw error;
 
